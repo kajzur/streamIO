@@ -1,6 +1,7 @@
 var zlib = require('zlib');
 var fs = require('fs');
 var request = require('request');
+var JSONStream = require('JSONStream');
 
 (function(){
 
@@ -43,20 +44,24 @@ var request = require('request');
 		.on('end', function(){  readStreams(reader, sources, ++index, options, parser, pushNext, complete);});
 
 };
-	var genericReadStream = function(filename, options, parser){
+
+var parsers = {
+		JSON: function(stream){ return stream.pipe(JSONStream.parse(true)); }
+}
+
+var readers = {
+		FILE: function(fname){return fs.createReadStream(fname);}
+}
+
+	var genericReadStream = function(filename, options){
 		var reader;
-		if(options.reader == "FILE"){
-			reader =  function(fname){return fs.createReadStream(fname);}
-		}else {
-			log("unknown reader type");
-			
-		}
+		
 		var readOptions = {
 				source:filename,
-				parser: parser,
+				parser: parsers[options.parser],
 				originalOptions:options,
 				compressed: options.compressed,
-				reader: reader
+				reader: readers[options.reader]
 				};
 		return readStream(readOptions);
 	};
