@@ -25,17 +25,6 @@ var streamIO = require("./streamIO");
 		};
 	};
 	
-	var readFileStream = function(filename, compressed) {
-		return function(pushNext, complete) {
-			fs.createReadStream(filename)
-			.on('error', completeWithError(complete))
-			.pipe(zlib.Unzip())
-			.pipe(JSONStream.parse(true)).on('data',function(data) {
-					pushNext(null, data);
-			}).on('close', function(){complete();});
-		};
-	
-	};
 	
 	var writeFileStream = function(filename) {
 		var result = {};
