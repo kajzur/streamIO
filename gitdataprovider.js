@@ -41,12 +41,12 @@ var streamIO = require("./streamIO");
 	var outStream = writeFileStream("fromFile_r.json");
 	
 	var options = {
-			reader:"URL",
+			reader:"FILE",
 			compressed:true,
 			parser : "JSON"
 	}
 	
-	streamIO.readFileStream(url, options)(function(err, res){  counter++;  outStream.pushNext(err,res);}, function(err){if(err) {log(err);} log("stream completed, pushes " + counter); outStream.complete(err);})
+	streamIO.readStream(filename, options)(function(err, res){  counter++;  outStream.pushNext(err,res);}, function(err){if(err) {log(err);} log("stream completed, pushes " + counter); outStream.complete(err);})
 	
 //	streamIO.readUrlStream(url, true)(function(err, res){counter++; outStream.pushNext(err,res); }, function(err) { if(err) {log(err);} log("stream completed, pushes " + counter); outStream.complete(err);});
 	

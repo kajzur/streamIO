@@ -69,25 +69,13 @@ var readers = {
 		return readStream(readOptions);
 	};
 	
-	var readUrlStream = function(url, options, parser){
-		return function(pushNext, complete) {
-			var stream = request.get(url)
-			.on('error', function(err){complete(err);});
-			if(options.compressed){
-				stream = stream.pipe(zlib.Unzip());
-			}
-			stream.pipe(parser).on('data',function(data) {
-					pushNext(null, data);
-			}).on('close', function(){complete();});
-		};
-	};
+	
 	
 	
 	
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {				  
-		exports.readFileStream = genericReadStream;
-		
-		exports.readUrlStream = readUrlStream;
+		exports.readStream = genericReadStream;
+				
 	}
 	
 })();
