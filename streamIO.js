@@ -25,7 +25,6 @@ var csvp = require('csv-parser');
 		var reader = options.reader;
 		log(sources);
 		return function(pushNext, complete) {
-			log("rs");
 			readStreams(reader, sources, 0, options.originalOptions, parser, pushNext, complete);
 		};
 	};

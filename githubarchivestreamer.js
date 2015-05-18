@@ -49,58 +49,72 @@ var streamIO = require("./streamIO");
 	
 	var path = "http://data.githubarchive.org/";
 	
-	var args = process.argv.slice(2);
 	
-	log(JSON.stringify(args));
-	
-	
-	
-	var year = [parseInt(args[0])];
-	if(isNaN(year[0])) {error("year NaN"); }
-	
-	var month = getDateElement(args[1], months, "month");
-	
-	console.log(month);
-	var day = getDateElement(args[2], days, "day");
-	
-	console.log(day);
-	
-	
-	args[3] = args[3] || "*";
-	var hour = getDateElement(args[3], hours, "hour");
-	
-	
-	
-	
-	
-	var prefix = path + year;
-	var suffix = ".json.gz";
-	var sources = [];
-	month.forEach(
-			function(m){
-				var mfile = prefix + "-" + m;
-				day.forEach(
-						function(d){
-							var dfile = mfile + "-" + d;
-							hour.forEach(function(h){
-								var hfile = dfile + "-" + h + suffix;
-								sources.push(hfile);
-						//		console.log(hfile);
-							});
-						});				
-			});
-	
+	var githubstreamer = function(args) {
+								
+		log(JSON.stringify(args));
+		
+		
+		
+		var year = [parseInt(args[0])];
+		if(isNaN(year[0])) {error("year NaN"); }
+		
+		var month = getDateElement(args[1], months, "month");
+		
+		console.log(month);
+		var day = getDateElement(args[2], days, "day");
+		
+		console.log(day);
+		
+		
+		args[3] = args[3] || "*";
+		var hour = getDateElement(args[3], hours, "hour");
+		
+		
+		
+		
+		
+		var prefix = path + year;
+		var suffix = ".json.gz";
+		var sources = [];
+		month.forEach(
+				function(m){
+					var mfile = prefix + "-" + m;
+					day.forEach(
+							function(d){
+								var dfile = mfile + "-" + d;
+								hour.forEach(function(h){
+									var hfile = dfile + "-" + h + suffix;
+									sources.push(hfile);
+								});
+							});				
+				});
+		
 
+		var options = {
+				reader:"URL",
+				compressed:true,
+				parser : "JSON"
+		}
+		
+		return function(next, end){
+			streamIO.readStream(sources, options)(next, end);
+		}
 
-	console.log(sources);
-	var options = {
-			reader:"URL",
-			compressed:true,
-			parser : "JSON"
 	}
-	var counter = 0;
-	streamIO.readStream(sources, options)(function(err, res){  counter++;  }, function(err){if(err) {log(err);} log("stream completed, pushes " + counter); })
+		
+	
+	
+	
+	
+	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {				  
+		exports.githubstreamer = githubstreamer;
+				
+	}
+
 })()
+
+
 
 
 
