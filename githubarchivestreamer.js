@@ -47,34 +47,28 @@ var streamIO = require("./streamIO");
 		return result;
 	}
 	
-	var path = "http://data.githubarchive.org/";
 	
 	
-	var githubstreamer = function(args) {
-								
-		log(JSON.stringify(args));
+	var githubstreamer = function(args, reader, uri) {									
+		reader = reader ? reader : "URL";
 		
-		
+		uri = uri ? uri : "http://data.githubarchive.org/";
 		
 		var year = [parseInt(args[0])];
 		if(isNaN(year[0])) {error("year NaN"); }
 		
 		var month = getDateElement(args[1], months, "month");
 		
-		console.log(month);
+
 		var day = getDateElement(args[2], days, "day");
 		
-		console.log(day);
+
 		
 		
 		args[3] = args[3] || "*";
 		var hour = getDateElement(args[3], hours, "hour");
 		
-		
-		
-		
-		
-		var prefix = path + year;
+		var prefix = uri + year;
 		var suffix = ".json.gz";
 		var sources = [];
 		month.forEach(
@@ -103,13 +97,10 @@ var streamIO = require("./streamIO");
 
 	}
 		
-	
-	
-	
+			
 	
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {				  
-		exports.githubstreamer = githubstreamer;
-				
+		exports.githubstreamer = githubstreamer;				
 	}
 
 })()
