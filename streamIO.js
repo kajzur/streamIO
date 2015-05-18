@@ -2,6 +2,7 @@ var zlib = require('zlib');
 var fs = require('fs');
 var request = require('request');
 var JSONStream = require('JSONStream');
+var csvp = require('csv-parser');
 
 (function(){
 
@@ -46,11 +47,13 @@ var JSONStream = require('JSONStream');
 };
 
 var parsers = {
-		JSON: function(stream){ return stream.pipe(JSONStream.parse(true)); }
+		JSON: function(stream){ return stream.pipe(JSONStream.parse(true)); },
+		CSV: function(stream){ return stream.pipe(csvp()); }
 }
 
 var readers = {
-		FILE: function(fname){return fs.createReadStream(fname);}
+		FILE: function(fname){return fs.createReadStream(fname);},
+		URL: function(url){return request.get(url);},
 }
 
 	var genericReadStream = function(filename, options){
