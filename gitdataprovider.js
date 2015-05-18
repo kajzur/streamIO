@@ -12,19 +12,7 @@ var streamIO = require("./streamIO");
 		};
 	};
 	
-	var readUrlStream = function(url, compressed){
-		return function(pushNext, complete) {
-			var stream = request.get(url)
-			.on('error', function(err){complete(err);});
-			if(compressed){
-				stream = stream.pipe(zlib.Unzip());
-			}
-			stream.pipe(JSONStream.parse(true)).on('data',function(data) {
-					pushNext(null, data);
-			}).on('close', function(){complete();});
-		};
-	};
-	
+
 	
 	var writeFileStream = function(filename) {
 		var result = {};
@@ -64,8 +52,7 @@ var streamIO = require("./streamIO");
 	
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {				  
 	
-		exports.writeFileStream = writeFileStream;
-		exports.readUrlStream = readUrlStream;
+	
 	}
 	
 	
