@@ -1,8 +1,7 @@
-var http = require('http');
-var fs = require('fs');
+var streamIO = require("./streamIO");
 
 (function(){
-
+	var log = console.log;
 	var months = {table:["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]};
 	var days = {table:["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"]};
 	var hours = {table:["0","1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"]};
@@ -18,7 +17,7 @@ var fs = require('fs');
 	createIndex(hours);
 		
 	var error = function(info){
-		console.log(info); 
+		log(info); 
 		process.exit();
 	}
 	var getDateElement = function(elem, dateobj, name){
@@ -52,12 +51,12 @@ var fs = require('fs');
 	
 	var args = process.argv.slice(2);
 	
-	console.log(JSON.stringify(args));
+	log(JSON.stringify(args));
 	
 	
 	
 	var year = [parseInt(args[0])];
-	if(isNaN(year[0])) {console.log("year NaN"); process.exit();}
+	if(isNaN(year[0])) {error("year NaN"); }
 	
 	var month = getDateElement(args[1], months, "month");
 	
@@ -86,14 +85,21 @@ var fs = require('fs');
 							hour.forEach(function(h){
 								var hfile = dfile + "-" + h + suffix;
 								sources.push(hfile);
-								console.log(hfile);
+						//		console.log(hfile);
 							});
 						});				
 			});
 	
 
 
-	
+	console.log(sources);
+	var options = {
+			reader:"URL",
+			compressed:true,
+			parser : "JSON"
+	}
+	var counter = 0;
+	streamIO.readStream(sources, options)(function(err, res){  counter++;  }, function(err){if(err) {log(err);} log("stream completed, pushes " + counter); })
 })()
 
 
