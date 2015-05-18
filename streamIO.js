@@ -43,13 +43,20 @@ var request = require('request');
 		.on('end', function(){  readStreams(reader, sources, ++index, options, parser, pushNext, complete);});
 
 };
-	var genericReadFileStream = function(filename, options, parser){
+	var genericReadStream = function(filename, options, parser){
+		var reader;
+		if(options.reader == "FILE"){
+			reader =  function(fname){return fs.createReadStream(fname);}
+		}else {
+			log("unknown reader type");
+			
+		}
 		var readOptions = {
 				source:filename,
 				parser: parser,
 				originalOptions:options,
 				compressed: options.compressed,
-				reader: function(fname){return fs.createReadStream(fname);}
+				reader: reader
 				};
 		return readStream(readOptions);
 	};
@@ -70,7 +77,7 @@ var request = require('request');
 	
 	
 	if (typeof require !== 'undefined' && typeof exports !== 'undefined') {				  
-		exports.readFileStream = genericReadFileStream;
+		exports.readFileStream = genericReadStream;
 		
 		exports.readUrlStream = readUrlStream;
 	}
