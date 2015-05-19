@@ -1,6 +1,8 @@
 /**
- * usage: node test [year] [month] [day] [hour] samples node test 2014 1 2-3
- * 11-13 node test 2014 1 4 *
+ * usage: node test [year] [month] [day] [hour] 
+ * samples:
+ *  node test 2014 1 2-3 11-13 
+ *  node test 2014 1 4 *
  * 
  */
 var githubstream = require("./githubarchivestreamer").githubstreamer;
