@@ -3,6 +3,7 @@ var fs = require('fs');
 var request = require('request');
 var JSONStream = require('JSONStream');
 var csvp = require('csv-parser');
+var awsHelper = require("./awsHelper").aws;
 
 (function() {
 	var schedule = process.nextTick;
@@ -15,6 +16,7 @@ var csvp = require('csv-parser');
 
 	var parsers = {
 		JSON : function(stream) {
+			debugger
 			return stream.pipe(JSONStream.parse(true));
 		},
 		CSV : function(stream) {
@@ -27,6 +29,7 @@ var csvp = require('csv-parser');
 			return fs.createReadStream(fname);
 		},
 		URL : function(url) {
+			debugger
 			return request.get(url);
 		},
 	}
@@ -38,12 +41,16 @@ var csvp = require('csv-parser');
 		if (options.compressed) {
 			var thisparser = parser;
 			parser = function(stream) {
-				stream = stream.pipe(zlib.Unzip());
+				var dat;
+				dat = zlib.Unzip();
+				dat._handle.onerror = function(m, err){ 
+					awsHelper.sendToSBD("failure","link",options.source[0]);
+				}
+				stream = stream.pipe(dat);
 				return thisparser(stream);
 			};
 		}
 		var reader = options.reader;
-		log(sources);
 		return function(pushNext, complete) {
 			readStreams(reader, sources, 0, options.originalOptions, parser,
 					pushNext, complete);
@@ -61,11 +68,10 @@ var csvp = require('csv-parser');
 			complete();
 			return;
 		}
-		log("reading " + sources[index]);
 		var stream = reader(sources[index]).on('error', error());
 		stream = parser(stream);
 
-		stream.on('data', function(data) {
+		stream.on('response', function(data) {
 			pushNext(null, data);
 		}).on('error', error()).on(
 				'end',

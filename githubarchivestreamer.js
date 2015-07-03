@@ -35,7 +35,7 @@ var streamIO = require("./streamIO");
 	}
 	var getDateElement = function(elem, dateobj, name) {
 		var result;
-		if (elem == "*") {
+		if (elem === "*") {
 			result = dateobj.table;
 		} else if (isNaN(elem)) {
 			var range = elem.split("-");
@@ -66,38 +66,37 @@ var streamIO = require("./streamIO");
 
 		uri = uri ? uri : "http://data.githubarchive.org/";
 
-		var year = [ parseInt(args[0]) ];
-		if (isNaN(year[0])) {
-			error("year NaN");
-		}
-
-		var month = getDateElement(args[1], months, "month");
-
-		var day = getDateElement(args[2], days, "day");
-
-		args[3] = args[3] || "*";
-		var hour = getDateElement(args[3], hours, "hour");
-
-		var prefix = uri + year;
-		var suffix = ".json.gz";
+		var years =  Array.isArray(args[0]) ? args[0] : [2015] ;
 		var sources = [];
-		month.forEach(function(m) {
-			var mfile = prefix + "-" + m;
-			day.forEach(function(d) {
-				var dfile = mfile + "-" + d;
-				hour.forEach(function(h) {
-					var hfile = dfile + "-" + h + suffix;
-					sources.push(hfile);
+		debugger
+		years.forEach(function(year){
+			var month = getDateElement(args[1], months, "month");
+
+			var day = getDateElement(args[2], days, "day");
+
+			args[3] = args[3] || "*";
+			var hour = getDateElement(args[3], hours, "hour");
+
+			var prefix = uri + year;
+			var suffix = ".json.gz";
+			month.forEach(function(m) {
+				var mfile = prefix + "-" + m;
+				day.forEach(function(d) {
+					var dfile = mfile + "-" + d;
+					hour.forEach(function(h) {
+						var hfile = dfile + "-" + h + suffix;
+						sources.push(hfile);
+					});
 				});
 			});
-		});
 
+
+		});
 		var options = {
 			reader : "URL",
 			compressed : true,
 			parser : "JSON"
 		}
-
 		return function(next, end) {
 			streamIO.readStream(sources, options)(next, end);
 		}

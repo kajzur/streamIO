@@ -6,31 +6,33 @@
  * 
  */
 var githubstream = require("./githubarchivestreamer").githubstreamer;
+var config = require('./producer_config');
+var AWS = require('aws-sdk');
+var writer = require("./kinesisStreamWriter");
+var runRealTimeWriter = require("./realTimeProducer");
 
 (function() {
 	var log = console.log;
-	log(process.argv);
-	var counter = 0;
-	var verbose = false;
-	var args = process.argv.slice(2);
-	if (args.length == 5) {
-		verbose = process.argv[4];
-	}
+	var currentYear = new Date().getFullYear();
+	var startYear = 2015;
+	var yearsToProceed = [];
+	for(startYear; startYear<=currentYear;startYear++)
+		yearsToProceed.push(startYear);
+	args = [yearsToProceed, "*", "*", "*"];
 	var stream = githubstream(args);
-
-	stream(function(err, res) {
-		if (err) {
-			log(err);
-		} else {
-			counter++;
-			if (verbose) {
-				log(res);
-			}
-		}
-	}, function(err) {
-		if (err) {
-			log(err);
-		}
-		log("stream completed, pushes " + counter);
-	});
+	var kinesis = new AWS.Kinesis({region : config.kinesis.region});
+runRealTimeWriter(kinesis, config);
+	// stream(function(err, res) {
+	// 	if (err) {
+	// 		log(err);
+	// 	} else {
+	// 		writer(kinesis, config, res);
+	// 	}
+	// }, function(err) {
+	// 	if (err) {
+	// 		log(err);
+	// 	} else{
+	// 		runRealTimeWriter(kinesis, config);
+	// 	}
+	// });
 })()
